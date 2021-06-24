@@ -61,14 +61,16 @@ class Data
         self::saveData($products);
     }
 
-    public static  function sort()
+    public static function sort($type)
     {
         $products = self::loadData();
-        ksort($products);
-        foreach ($products as $key=>$product){
-            $product->getId();
-        }
+        usort($products, function ($item1, $item2) use ($type) {
+            if ($type == 'up') {
+                return $item1->price > $item2->price;
+            } else {
+                return $item1->price < $item2->price;
+            }
+        });
+        return $products;
     }
-
-
 }

@@ -1,16 +1,23 @@
 <?php
 include_once 'Data.php';
 include_once 'Products.php';
+
 $products = Data::loadData();
-
-if (isset($_REQUEST['page'])){
-
-    if ($_REQUEST['page']=='delete'){
-        $id =$_REQUEST['id'];
-        array_splice($products,$id,1);
+if (isset($_REQUEST['sort'])) {
+    if ($_REQUEST['sort'] == 'up') {
+        $products = Data::sort('up');
+    } else {
+        $products = Data::sort('down');
+    }
+}
+if (isset($_REQUEST['page'])) {
+    session_start();
+    if ($_REQUEST['page'] == 'delete') {
+        $id = $_REQUEST['id'];
+        array_splice($products, $id, 1);
         Data::saveData($products);
         header('location: index.php');
-}
+    }
 }
 ?>
     <!doctype html>
@@ -27,9 +34,21 @@ if (isset($_REQUEST['page'])){
           crossorigin="anonymous">
 </head>
 <body>
-<a href="add.php">ADD Product</a>
-<button onclick="<?php sort($products)?>">sort</button>
-<table class="table">
+<nav class="navbar navbar-expanded-lg navbar-dark bg-light">
+    <a href="add.php" class="btn btn-outline-success">ADD Product</a>
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            Sort price
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="index.php?sort=up">High to Low</a>
+            <a class="dropdown-item" href="index.php?sort=down">Low to High</a>
+        </div>
+    </div>
+    <a href="login.php" class="btn btn-outline-danger">Log out</a>
+</nav>
+<table class="table table-hover">
     <thead class="thead-dark">
     <tr>
         <th scope="col">ID</th>
@@ -37,13 +56,12 @@ if (isset($_REQUEST['page'])){
         <th scope="col">Price</th>
         <th scope="col">Address</th>
         <th scope="col">Image</th>
-        <th scope="col">Edit</th>
-        <th scope="col">Delete</th>
+        <th scope="col">Action</th>
 
     </tr>
     </thead>
     <tbody>
-    <?php foreach ($products as $key=>$product): ?>
+    <?php foreach ($products as $key => $product): ?>
         <tr>
             <td><?php echo $product->getId(); ?></td>
             <td><?php echo $product->getName() ?></td>
@@ -51,10 +69,8 @@ if (isset($_REQUEST['page'])){
             <td><?php echo $product->getAddress() ?></td>
             <td><?php echo $product->getImage() ?></td>
             <td>
-                <a href="edit.php?id=<?php echo $product->getId()?>" >Edit</a>
-            </td>
-            <td>
-                <a href="index.php?page=delete&id=<?php echo $key?>">Delete</a>
+                <a class="btn btn-warning" href="edit.php?id=<?php echo $product->getId() ?>">Edit</a>
+                <a class="btn btn-danger" href="index.php?page=delete&id=<?php echo $key ?>">Delete</a>
             </td>
         </tr>
     <?php endforeach; ?>
